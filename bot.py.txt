@@ -1,0 +1,50 @@
+import discord
+from discord.ext import commands
+import os
+
+print("🚀 Bot is starting...")
+
+# Set prefix to +
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix="+", intents=intents)
+
+# On ready
+@bot.event
+async def on_ready():
+    print(f"✅ Logged in as {bot.user}")
+
+# +ping
+@bot.command()
+async def ping(ctx):
+    await ctx.send("🏓 Pong!")
+
+# +hello
+@bot.command()
+async def hello(ctx):
+    await ctx.send("Hello 👋")
+
+# +ban <user_id>
+@bot.command()
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, user_id: int):
+    try:
+        user = await ctx.guild.fetch_member(user_id)
+        await ctx.guild.ban(user, reason="Banned by bot")
+        await ctx.send(f"✅ Banned {user.name}")
+    except Exception as e:
+        await ctx.send(f"⚠️ Error: {e}")
+
+# +unban <user_id>
+@bot.command()
+@commands.has_permissions(ban_members=True)
+async def unban(ctx, user_id: int):
+    try:
+        user = discord.Object(id=user_id)
+        await ctx.guild.unban(user, reason="Unbanned by bot")
+        await ctx.send(f"✅ Unbanned user with ID {user_id}")
+    except Exception as e:
+        await ctx.send(f"⚠️ Error: {e}")
+
+# Run bot
+bot.run(os.environ.get("DISCORD_TOKEN"))
